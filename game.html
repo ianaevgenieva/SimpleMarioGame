@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>Super Mario</title>
+<style>
+#mario {
+  background-image: url("images/mario.png");
+  position: absolute;
+  background-repeat: no-repeat;
+  width: 200px;
+  height: 160px;
+  bottom: 0;
+}
+#enemy {
+    background-image: url("images/enemy.jpg");
+    width: 200px;
+	height:160px;
+	position: absolute;
+	top: 0;
+	background-repeat: no-repeat;
+}
+
+#bullet {
+  width : 10px;
+  height: 10px;
+  background-color: green;
+  border-radius: 5px;
+  position: absolute;
+}
+#border {
+  border:10px solid green;
+  height:500px;
+  width:900px;
+  position:absolute;
+  margin: 20px 50px;
+  background-color: white;
+}
+body {
+ background-color: 	#7FFF00;
+}
+#table {
+float: right;
+}
+#win {
+  visibility: hidden;
+  font-size: 30px;
+  margin-left: 500px;
+  font-family:  Georgia, Serif;
+ }
+#looser {
+  visibility: hidden;
+  font-size: 30px;
+  margin-left: 500px;
+ font-family:  Georgia, Serif;
+ }
+</style>
+</head>
+<body> 
+<h id ="win">Win </h>
+<h id = "looser">Looser</h>
+  <div id = "border">
+    <div id = "enemy" ></div>
+    <div id = "bullet"></div>
+    <div id = "mario"></div>
+ </div>
+ <table id = "table">
+ <tr>
+  <th>Score</th>
+  <th>Bullet</th>
+ </tr>
+ <tr>
+ <td id= "score"></td>
+ <td id = "patron"></td>
+ </tr>
+ </table>
+</body>
+<script type="text/javascript">
+ var bullets = 100;
+ var mario  = {
+		  isMoveRight: false,
+		  isMoveLeft: false,
+		  speed: 4,
+	      dom: document.getElementById("mario"),
+          left: 0
+ }
+ 
+ function gameMario() {
+	 if (mario.isMoveRight && (mario.left < 700)) {
+		 mario.left += mario.speed;
+	 }
+	 if (mario.isMoveLeft && (mario.left > 0)) { 
+		 mario.left -= mario.speed;
+	 }
+  mario.dom.style.left = mario.left + "px";
+  
+ }
+ 
+ var enemy = {
+		 left: 0,
+         isMove: true,
+         speed: 5,
+         dom: document.getElementById("enemy")
+ }
+ 
+ function enemyMove (){
+	  if (enemy.left == 750) {
+       enemy.isMove = false;
+      }
+      if (enemy.left == 0) {
+         enemy.isMove = true;
+      }
+      if (enemy.isMove) {
+         enemy.left += enemy.speed;
+      } else {
+          enemy.left -= enemy.speed;
+      }
+     enemy.dom.style.left = enemy.left + "px";
+ }
+ 
+  var bullet = {
+		   left: 0,
+		   isShoot: false,
+		   speed: 10,
+		   dom: document.getElementById("bullet"),
+		   top: 280,
+		   isReady : true,
+  }
+  
+function shoot() {
+	 bullet.dom.style.left = 90+bullet.left + "px";
+	 bullet.dom.style.top = bullet.top +"px";	
+	 bullet.dom.style.display= "none";
+		if (bullet.isShoot == true){
+			
+			bullet.dom.style.display = "block";
+			bullet.top = bullet.top - bullet.speed;
+	        bullet.dom.style.top = bullet.top+ 'px';        
+	        if(bullet.top < 10){
+				bullet.isReady = true;
+				bullet.isShoot = false;
+				bullet.top = 280;
+			}
+		}
+
+  }
+ 
+ 
+ 
+  var count=0;
+  function isShooting(){
+	 if(mario.left > enemy.left) {
+		 var dep = mario.left - enemy.left;
+	 }
+	 if (mario.left < enemy.left){
+		 var dep = enemy.left - mario.left;
+	 }
+	
+	 if (bullet.top == 180){
+		 if ((dep >= 0) && (dep <= 100)){
+			 count++;
+			 var result= document.getElementById("score").textContent = count;
+		 }
+		
+	 }
+  }
+
+ function onKeyEvents(keyCode,state){
+		if(keyCode == 37){
+			mario.isMoveLeft = state;
+		}
+		if(keyCode == 39){
+			mario.isMoveRight = state;
+		}
+		if(keyCode == 32){
+			
+			if(state && bullet.isReady){
+				bullet.isShoot = state;
+				bullet.left = mario.left;
+				bullet.isReady = false;
+				bullets--;
+				document.getElementById("patron").textContent = bullets;
+				}
+		}
+	}
+ function keysEvents(){
+		document.addEventListener("keydown",function(){
+			onKeyEvents(event.keyCode,true)			
+		},false)
+		document.addEventListener("keyup",function(){
+			onKeyEvents(event.keyCode,false)			
+		},false)
+	}
+	function gameLoop (){
+		  gameMario();
+		  enemyMove();
+		  shoot(); 
+		  keysEvents();
+		  isShooting();
+		 
+		  if ((count == 5) && (bullets > 0)){
+			  document.getElementById("win").style.visibility = "visible";
+			  return ;
+		  } else if(count < 5 && bullets < 1){
+			  document.getElementById("looser").style.visibility = "visible";
+			  return ;
+		  }
+		  requestAnimationFrame(gameLoop);
+		 }
+		 requestAnimationFrame(gameLoop);
+ 
+</script>
+</html>
